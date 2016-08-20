@@ -100,9 +100,12 @@
         if(song.mv>0) {
             videoC.style.display = 'block'
             musicBox.style.display = 'none'
-            video.src = song.url
+            video.src = song.mvurl
             video.dataset['sid'] = song.id
-            video.poster = song.pic && song.pic.picUrl
+            if(song.pic) {
+                video.poster = song.pic.picUrl
+                container.style.backgroundImage='url("'+song.pic.picUrl+'")'
+            }
             if(song.curTime)
                 video.currentTime = song.curTime
             video.play()
@@ -226,6 +229,8 @@
     audio.addEventListener('ended', function (e) {
         audio.ended = audio.paused = true
         audio.src = ''
+        musicBox.style.display = 'none'
+        setCurrentPlay(null)
         container.style.backgroundImage = ''
         socket.emit('playEnd', audio.dataset.sid)
         removeSelector('.hl', songs)
@@ -239,6 +244,8 @@
         video.ended = video.paused = true
         video.src = ''
         videoC.style.display = 'none'
+        setCurrentPlay(null)
+        container.style.backgroundImage = ''
         socket.emit('playEnd', video.dataset.sid)
         removeSelector('.hl', songs)
     })
@@ -318,17 +325,15 @@
                 setTip('现在还没人点歌哦')
             }
         }).on('currentTime', function (socketId) {
+            var curTime = 0
             if(!audio.ended)
-                socket.emit('currentTime', {
-                    id: socketId,
-                    curTime: audio.currentTime
-                })
-            else {
-                socket.emit('currentTime', {
-                    id: socketId,
-                    curTime: 0
-                })
-            }
+                curTime = audio.currentTime
+            else if(!video.ended)
+                curTime = video.currentTime
+            socket.emit('currentTime', {
+                id: socketId,
+                curTime: curTime
+            })
         }).on('deleteSong', function (json) {
             if(json.isSelf) {
                 removeSelector('#p'+json.id, songs)

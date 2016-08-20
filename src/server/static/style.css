@@ -242,6 +242,8 @@ main .video-c {
     height: 530px;
     overflow-x: hidden;
     z-index: 200;
+    box-shadow: 3px 3px 4px #aaa;
+    max-height: 560px;
 }
 main audio {
     display: none;
@@ -290,11 +292,11 @@ main video {
 }
 .video-c.mini {
     /*transition: all 1s;*/
-    width: 33%;
-    top: 10px;
-    right: 10px;
+    width: 30%;
+    top: 2px;
+    right: 4px;
     left: auto;
-    top: auto;
+    bottom: auto;
 }
 #currentPlay {
     color: #880000;

@@ -60,6 +60,30 @@ function handler (req, res) {
                 res.end(JSON.stringify(json))
             })
         return
+    } else if(url.startsWith('/api/song')) {
+        if(q.id!= null && q.id>0) {
+            gs.getSongUrl(q.id)
+                .then(x=>{
+                    if(x.code!=200){
+                        res.end('Error: '+x.msg)
+                        return
+                    }
+                    return gs.getStream(x.data.url)
+                        .then(s => {
+                            s.on('error', (err) => {
+                                s.close && s.close()
+                                console.error(err)
+                                res.end()
+                            })
+                            res.writeHead(200, {'Content-Type': 'audio/mpeg'})
+                            s.pipe(res)
+                        })
+                })
+        } else {
+            res.writeHead(500);
+            res.end('Error')
+        }
+        return
     }
 
     let queryIndex = url.lastIndexOf('?')
@@ -94,7 +118,7 @@ io.on('connection', function (socket) {
                     isSelf: x.userid==socket._id
                 })
             }))
-                .emit('play', Object.assign({fixTime: true}, songs.getFirst()) )
+            playSon(socket, {fixTime: true})
             socket.name = ( (name!=null&&name!='') ? name : makeName() )
 
             socket.on('bullet', (data) => {
@@ -123,7 +147,7 @@ io.on('connection', function (socket) {
                 }
             }).on('playEnd', function (id) {
                 songs.remove(id)
-                socket.emit('play', songs.getFirst())
+                playSon(socket)
             }).on('deleteSong', function (id) {
                 let success = songs.deleteSelfSong(socket._id, id)
                 if(success) {
@@ -143,12 +167,12 @@ io.on('connection', function (socket) {
         }).on('play', () => {
             if(Object.keys(socket.server.sockets.sockets).length>1) {
                 socket.playTimer = setTimeout(function () {
-                    socket.emit('play', songs.getFirst())
+                    playSon(socket)
                 }, 5000)
                 socket.broadcast.emit('currentTime', socket.id)
             }
             else
-                socket.emit('play', songs.getFirst())
+                playSon(socket)
         }).on('currentTime', (json) => {
             let findId = Object.keys(socket.server.sockets.sockets).find((x) => {
                 return x == json.id
@@ -156,7 +180,7 @@ io.on('connection', function (socket) {
             delete json.id
             if(findId) {
                 clearTimeout(socket.server.sockets.sockets[findId].playTimer)
-                socket.server.sockets.sockets[findId].emit('play', Object.assign(json, songs.getFirst()))
+                playSon(socket.server.sockets.sockets[findId], json)
             }
 
         })
@@ -202,14 +226,14 @@ const requestSongWorker = (song, socket) => {
         Object.assign(song, {username: socket.name, userid: socket._id})
         if(song.mv!=null) {
             songs.add(Object.assign({}, song, {
-                url: SUFFIX + '?id=' + song.mv,
+                mvurl: SUFFIX + '?id=' + song.mv,
                 mv: song.mv
             }))
             socket.broadcast.emit('putSong', {code: 200, song: song})
             song.isSelf = true
             socket.emit('putSong', {code: 200, song: song})
             if(songs.size() == 1) {
-                broadcast('play', songs.getFirst())
+                broadCastPlaySon()
             }
         } else {
             gs.getSongUrl(id).then((x) => {
@@ -221,7 +245,7 @@ const requestSongWorker = (song, socket) => {
                     song.isSelf = true
                     socket.emit('putSong', {code: 200, song: song})
                     if(songs.size() == 1) {
-                        broadcast('play', songs.getFirst())
+                        broadCastPlaySon()
                     }
                 }
             })
@@ -229,3 +253,21 @@ const requestSongWorker = (song, socket) => {
     }
 }
 
+
+function broadCastPlaySon(opt = {}) {
+    if(songs.getFirst())
+        gs.getSongUrl(songs.getFirst().id).then(x=>{
+            broadcast('play', Object.assign(opt, songs.getFirst(), x.data))
+        })
+    else
+        broadcast('play')
+}
+
+function playSon(socket, opt = {}) {
+    if(songs.getFirst())
+        gs.getSongUrl(songs.getFirst().id).then(x=>{
+            socket.emit('play', Object.assign(opt, songs.getFirst(), x.data))
+        })
+    else
+        socket.emit('play')
+}
