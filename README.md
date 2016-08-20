@@ -3,7 +3,7 @@
 偶然的机会，发现了B站的点歌机器人，觉得挺好玩的就自己做了一个简易版点歌机器人，预览如下：
 
 ![](/upload/gif1.gif)
-
+<!--more-->
 ## 功能
 
 1. 使用websocket，支持多人同时点歌，发送弹幕聊天
@@ -82,15 +82,13 @@ if(url.startsWith(SUFFIX)) {
 }
 ```
 
-## 最后在上个预览
-
-![](/upload/gif3.gif)
 
 ## 源码与使用
 
 [song-robot](https://github.com/moyuyc/request-song-robot)
 
-```
+```sh
+
 npm i song-robot -g
 song-robot -p 9888
 open http://localhost:9888
