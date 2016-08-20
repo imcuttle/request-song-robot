@@ -23,20 +23,30 @@
         function randDuration() {
             return 3.5 + (Math.random()*1.5);
         }
-        function randTop() {
-            var bound = container.clientHeight - 20
+        function randTop(el) {
+            var bound = el.clientHeight - 20
             var low = 10
             return low + (Math.random()*(bound - low));
         }
         var span = d.createElement('span')
         span.className = 'bullet-text ' + (isSelf?'isSelf':'')
         span.innerText = val
-        if(!video.paused && !video.ended) {
-            videoC.appendChild(span)
-        } else
-            container.appendChild(span)
         span.style.animationDuration = randDuration()+'s'
-        span.style.top = randTop()+'px'
+        if(!video.paused && !video.ended) {
+            span.style.top = randTop(videoC)+'px'
+            videoC.appendChild(span)
+            // var all = container.querySelectorAll('.bullet-text')
+            // all && all.forEach(a=>{
+            //     a.remove()
+            // })
+        } else {
+            span.style.top = randTop(container)+'px'
+            container.appendChild(span)
+            // var all = videoC.querySelectorAll('.bullet-text')
+            // all && all.forEach(a=>{
+            //     a.remove()
+            // })
+        }
     }
     function setTip(v) {
         tip.innerText = v
@@ -98,6 +108,10 @@
             return
         setCurrentPlay(song)
         if(song.mv>0) {
+            var all = videoC.querySelectorAll('.bullet-text')
+            all && all.forEach(a=>{
+                a.remove()
+            })
             videoC.style.display = 'block'
             musicBox.style.display = 'none'
             video.src = song.mvurl
