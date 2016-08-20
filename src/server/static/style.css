@@ -1,0 +1,317 @@
+* {
+    margin: 0;
+    padding: 0;
+    font-family: "Abadi MT Condensed Light";
+}
+
+.row-c {
+    margin-right: auto;
+    margin-left: auto;
+    /*overflow: hidden;*/
+    padding-left: 15px;
+    padding-right: 15px;
+}
+body {
+
+    background-color: #E9E9E9;
+}
+
+main {
+    /*width: 100%;*/
+    /*margin: auto;*/
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+h1 {
+    text-align: center;
+    border-bottom: 1px solid #ccc;
+    margin-top: 10px;
+    padding-bottom: 4px;
+    margin-bottom: 10px;
+    margin-left: 20px;
+    margin-right: 20px;
+}
+
+main .container {
+    background-position: center center;
+    background-size: auto 100%;
+    position: relative;
+    overflow: hidden;
+    background-color: #eeeeee;
+    height: 530px;
+    border-radius: 8px;
+    box-shadow:4px 4px 5px #aaaaaa;
+}
+.col-2 {
+    width: 25%;
+}
+.col-8 {
+    width: 75%;
+}
+.row{
+    /* 向外左右延伸15px */
+    margin-right: -15px;
+    margin-left: -15px;
+}
+/* 防止子元素为float,父元素的高度为0 */
+.row:before,
+.row:after {
+    content: " ";
+    display: table;
+}
+.row:after {
+    clear: both;
+}
+.col-1, .col-2, .col-3, .col-4, .col-5, .col-6, .col-7, .col-8, .col-9{
+    padding-left: 15px;
+    padding-right: 15px;
+    float: left;
+    min-height: 10px;
+    box-sizing: border-box;
+}
+.col-6 {
+    width: 50%;
+}
+main  {
+    /*background-color: #eeeeee;*/
+    overflow-y: scroll;
+}
+.ipt-container {
+    margin-top: -30px;
+    width: 80%;
+    margin-left: 50%;
+    transform: translate(-50%, 50%);
+    position: relative;
+}
+.ipt-container .suggest{
+    /*display: none;*/
+    visibility: hidden;
+    z-index: 300;
+    list-style: none;
+    position: absolute;
+    height: 90px;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    border-radius: 4px;
+    box-shadow: 2px 2px 3px #aaa;
+}
+.ipt-container .suggest li:hover,
+.ipt-container .suggest li.active,
+.ipt-container .suggest li:active {
+    background-color: #eee;
+}
+.ipt-container .suggest li {
+    cursor: pointer;
+    font-family: Consolas, Menlo, Monaco, monospace;
+    border: 1px solid black;
+    border-top: none;
+    padding: 4px 10px;
+    background-color: #fff;
+}
+
+main .suggest,
+main input {
+    box-sizing: border-box;
+    outline: none;
+    display: block;
+    width: 100%;
+    height: 30px;
+}
+main .tips {
+
+    display: inline-block;
+    margin-top: 6px;
+    color: #ff0000;
+}
+main input {
+    font-size: 18px;
+    padding-left: 10px;
+    padding-right: 10px;
+    border-radius: 4px;
+    border: 1px solid black;
+
+    color: steelblue;
+    text-shadow: 0px 0px 0px #000;
+    -webkit-text-fill-color: transparent;
+}
+main input:focus {
+    box-shadow: 1px 1px 1px #aaaaaa;
+}
+input::-webkit-input-placeholder {
+    text-shadow: none;
+    -webkit-text-fill-color: initial;
+}
+
+main .bullet-text {
+    position: absolute;
+    font-size: 20px;
+    color: royalblue;
+    white-space: nowrap;
+    display: inline-block;
+    font-family: Consolas;
+    transform: translateX(-100%);
+
+    animation-name: r2l;
+    animation-iteration-count: 1;
+    animation-timing-function: linear;
+}
+main .bullet-text.isSelf {
+    padding: 4px;
+    border: 2px dashed darkred;
+}
+@keyframes r2l {
+    0% {
+        transform: translateX(0%);
+        left: 100%;
+    }
+    100% {
+        left: 0;
+        transform: translateX(-100%);
+    }
+}
+
+.songs-items, .msg-items {
+    list-style: none;
+    margin-top: 70px;
+
+    height: 460px;
+    overflow-y: scroll;
+    background-color: #eeeeea;
+    border: 1px solid #111111;
+    border-radius: 5px;
+    padding: 10px;
+}
+.songs-items .btn-close {
+    margin-left: 5px;
+    height: 18px;
+    width: 18px;
+    color: #111111;
+
+    position: absolute;
+    right: -24px;
+    top: 0px;
+    text-align: center;
+    border: 1px solid black;
+    cursor: pointer;
+}
+.songs-items p {
+    margin-top: 5px;
+    margin-bottom: 5px;
+    position: relative;
+    margin-right: 25px;
+}
+.songs-items .hl .btn-close{
+    display: none;
+}
+.msg-items li .name {
+    display: block;
+    margin-right: 6px;
+    float: left;
+}
+.msg-items li .text {
+    display: block;
+    float: left;
+}
+.msg-items li:after {
+    content: " ";
+    display: table;
+    clear: both;
+}
+.msg-items li {
+    vertical-align: text-top;
+}
+
+.hl {
+    transition: transform 1.5s;
+    color: #880000;
+    /*transform: scale(2);*/
+}
+main .video-c {
+    width: 68%;
+    position: fixed;
+    margin: auto;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 100px;
+    display: none;
+    height: 530px;
+    overflow-x: hidden;
+    z-index: 200;
+}
+main audio {
+    display: none;
+}
+main video {
+    width: 100%;
+    height: auto;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+}
+.video-c .btn-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    color: black;
+    text-align: center;
+    font-size: 23px;
+    font-weight: bolder;
+    width: 24px;
+    height: 24px;
+    line-height: 24px;
+    border: 1px solid red;
+    cursor: pointer;
+}
+.video-c .btn-close .mini {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    margin: auto;
+    display: inline-block;
+    height: 3px;
+    background-color: red;
+    width: 18px;
+}
+.video-c .btn-close .mini.second {
+    display: none;
+}
+.show {
+    display: inline-block!important;
+}
+.video-c .btn-close .mini.vertical {
+    transform: rotate(-90deg);
+}
+.video-c.mini {
+    /*transition: all 1s;*/
+    width: 33%;
+    top: 10px;
+    right: 10px;
+    left: auto;
+    top: auto;
+}
+#currentPlay {
+    color: #880000;
+    position: fixed;
+    display: inline-block;
+    top: 10px;
+    left: 10px;
+    z-index: 300;
+}
+
+#musicBox {
+    position: fixed;
+    display: none;
+    z-index: 300;
+    top: 10px;
+    right: 10px;
+}
+#musicBox span {
+    margin-right: 10px;
+}

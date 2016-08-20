@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>RequestSong-Robot</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<h3 id="currentPlay"></h3>
+<h3 id="musicBox"><span>3:11</span><input type="range" value="100" min="0" max="100" step="1" /></h3>
+<main class="row-c">
+    <div class="row">
+        <div class="col-2">
+            <ul class="songs-items">
+
+            </ul>
+        </div>
+        <div class="col-6">
+            <h1>点歌机器人 -- moyu </h1>
+            <div class="container">
+            </div>
+            <div class="video-c">
+            <video controls="controls">
+            </video>
+            <span class="btn-close"><span class="mini"></span><span class="mini second"></span></span>
+            </div>
+            <div class="ipt-container">
+                <div class="tips"></div>
+                <input autofocus="autofocus" maxlength="24" type="text" placeholder='输入"点歌 歌名"并回车即可点歌'/>
+                <ul class="suggest">
+                </ul>
+                <audio></audio>
+            </div>
+        </div>
+        <div class="col-2">
+            <ul class="msg-items">
+
+            </ul>
+        </div>
+    </div>
+</main>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="core.js"></script>
+</body>
+</html>

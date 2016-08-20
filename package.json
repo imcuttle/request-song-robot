@@ -1,0 +1,19 @@
+{
+  "name": "request-song-robot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "big-integer": "^1.6.15",
+    "cheerio": "^0.20.0",
+    "dateformat": "^1.0.12",
+    "request": "^2.74.0",
+    "socket.io": "^1.4.8"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
