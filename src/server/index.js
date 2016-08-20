@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 /**
  * Created by Moyu on 16/8/19.
  */
@@ -8,9 +9,7 @@ var fs = require('fs');
 var URL = require('url');
 var p = require('path');
 var dateFormat = require('dateformat');
-const EventEmitter = require('events');
-class MyEmitter extends EventEmitter {}
-const myEmitter = new MyEmitter();
+var argv = require('minimist')(process.argv.slice(2))
 
 var gs = require('../getsong')
 var u = require('../utils')
@@ -24,7 +23,7 @@ function Log(text) {
     log.write(text + '\r\n')
 }
 
-app.listen(9888, () => {
+app.listen(argv.p || 9888, () => {
     console.log(`http://localhost:${app.address().port}`)
 });
 
@@ -129,7 +128,7 @@ io.on('connection', function (socket) {
                 } else {
                     socket.lastSend = Date.now()
 
-                    socket.emit('bullet', Object.assign(data, {isSelf: true}))
+                    socket.emit('bullet', Object.assign({}, data, {isSelf: true}))
                     socket.broadcast.emit('bullet', data)
 
                     broadcast('message', {name: socket.name, text: data.val})

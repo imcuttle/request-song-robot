@@ -88,8 +88,12 @@ if(url.startsWith(SUFFIX)) {
 
 ## 源码与使用
 
-```
+[song-robot](https://github.com/moyuyc/request-song-robot)
 
+```
+npm i song-robot -g
+song-robot -p 9888
+open http://localhost:9888
 ```
 
 ## 参考资料

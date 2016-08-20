@@ -1,12 +1,13 @@
 {
-  "name": "request-song-robot",
+  "name": "song-robot",
   "version": "1.0.0",
-  "description": "",
+  "description": "点歌机器人, 来自网易云音乐",
   "main": "index.js",
   "dependencies": {
     "big-integer": "^1.6.15",
     "cheerio": "^0.20.0",
     "dateformat": "^1.0.12",
+    "minimist": "^1.2.0",
     "request": "^2.74.0",
     "socket.io": "^1.4.8"
   },
@@ -14,6 +15,20 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
-  "license": "ISC"
+  "author": "moyuyc",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/moyuyc/request-song-robot.git"
+  },
+  "keywords": [
+    "songrobot"
+  ],
+  "bugs": {
+    "url": "https://github.com/moyuyc/request-song-robot/issues"
+  },
+  "homepage": "https://github.com/moyuyc/request-song-robot#readme",
+  "bin": {
+    "song-robot": "src/server/index.js"
+  }
 }
