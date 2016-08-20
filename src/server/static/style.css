@@ -42,7 +42,7 @@ main .container {
     position: relative;
     overflow: hidden;
     background-color: #eeeeee;
-    height: 530px;
+    height: 80%;
     border-radius: 8px;
     box-shadow:4px 4px 5px #aaaaaa;
 }
@@ -54,6 +54,7 @@ main .container {
 }
 .row{
     /* 向外左右延伸15px */
+    height: 100%;
     margin-right: -15px;
     margin-left: -15px;
 }
@@ -71,6 +72,7 @@ main .container {
     padding-right: 15px;
     float: left;
     min-height: 10px;
+    height: 100%;
     box-sizing: border-box;
 }
 .col-6 {
@@ -178,7 +180,7 @@ main .bullet-text.isSelf {
     list-style: none;
     margin-top: 70px;
 
-    height: 460px;
+    height: 74%;
     overflow-y: scroll;
     background-color: #eeeeea;
     border: 1px solid #111111;
@@ -231,15 +233,16 @@ main .bullet-text.isSelf {
     /*transform: scale(2);*/
 }
 main .video-c {
-    width: 68%;
     position: fixed;
     margin: auto;
     left: 0;
     right: 0;
     top: 0;
-    bottom: 100px;
+    bottom: 0;
     display: none;
-    height: 530px;
+    height: auto;
+    width: 100%;
+    background-color: rgba(0, 0, 0, .7);
     overflow-x: hidden;
     z-index: 200;
     box-shadow: 3px 3px 4px #aaa;

@@ -102,6 +102,7 @@
     }
     function fixVideoCloseBtn() {
         videoC.style.height = w.getComputedStyle(video).height
+        videoC.style.maxHeight = video.style.maxHeight = w.innerHeight+'px'
     }
     function playSong(song) {
         if(!song.id)
@@ -109,6 +110,7 @@
         setCurrentPlay(song)
         if(song.mv>0) {
             var all = videoC.querySelectorAll('.bullet-text')
+            all = [].slice.call(all)
             all && all.forEach(a=>{
                 a.remove()
             })
