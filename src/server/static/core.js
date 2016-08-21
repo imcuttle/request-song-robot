@@ -21,7 +21,7 @@
     /* common begin */
     function appendBullet(val, isSelf) {
         function randDuration() {
-            return 3.5 + (Math.random()*1.5);
+            return 5 + (Math.random()*2);
         }
         function randTop(el) {
             var bound = el.clientHeight - 20
@@ -58,6 +58,10 @@
     function setCurrentPlay(song) {
         var s = song ? '正在播放: ' + song.name + ' - ' + song.author : ''
         currentPlay.innerText = s
+        currentPlay.props = currentPlay.props || {}
+        Object.assign(currentPlay.props, {
+            song: song
+        })
     }
     function appendMsg(msg) {
         function mkP(text) {
@@ -192,6 +196,9 @@
                 }
             }, 'json')
         }
+    }
+    function getCurrentSong() {
+        return currentPlay.props.song
     }
     /* common end */
     /* events begin */
@@ -332,24 +339,22 @@
             }
         }).on('play', function (song) {
             if(song) {
-                if(!song.fixTime) {
-                    playSong(song)
-                } else {
-                    socket.emit('play')
-                }
+                playSong(song)
             } else {
                 setTip('现在还没人点歌哦')
             }
-        }).on('currentTime', function (socketId) {
-            var curTime = 0
-            if(!audio.ended)
-                curTime = audio.currentTime
-            else if(!video.ended)
-                curTime = video.currentTime
-            socket.emit('currentTime', {
-                id: socketId,
-                curTime: curTime
-            })
+        }).on('currentTime', function (idObj) {
+            if(getCurrentSong() && getCurrentSong().id == idObj.songID) {
+                var curTime = 0
+                if(!audio.ended)
+                    curTime = audio.currentTime
+                else if(!video.ended)
+                    curTime = video.currentTime
+                socket.emit('currentTime', {
+                    id: idObj.socketID,
+                    curTime: curTime
+                })    
+            }
         }).on('deleteSong', function (json) {
             if(json.isSelf) {
                 removeSelector('#p'+json.id, songs)

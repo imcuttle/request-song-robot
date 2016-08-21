@@ -151,7 +151,7 @@ input::-webkit-input-placeholder {
 main .bullet-text {
     position: absolute;
     font-size: 20px;
-    color: royalblue;
+    color: white;
     white-space: nowrap;
     display: inline-block;
     font-family: Consolas;

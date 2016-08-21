@@ -117,7 +117,7 @@ io.on('connection', function (socket) {
                     isSelf: x.userid==socket._id
                 })
             }))
-            playSon(socket, {fixTime: true})
+            fixTime(socket)
             socket.name = ( (name!=null&&name!='') ? name : makeName() )
 
             socket.on('bullet', (data) => {
@@ -207,7 +207,20 @@ function getFirstSong(title) {
     })
 }
 
-
+function fixTime(socket) {
+    let song = songs.getFirst()
+    if(Object.keys(socket.server.sockets.sockets).length>1 && !!song) {
+        socket.playTimer = setTimeout(function () {
+            playSon(socket)
+        }, 5000)
+        socket.broadcast.emit('currentTime', {
+            socketID: socket.id,
+            songID: song.id
+        })
+    }
+    else
+        playSon(socket)
+}
 
 const makeName = (() => {
     let id = 0
