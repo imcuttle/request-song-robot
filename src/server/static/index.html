@@ -4,9 +4,11 @@
     <meta charset="UTF-8">
     <title>RequestSong-Robot</title>
     <link rel="stylesheet" href="style.css">
+
 </head>
 <body>
 <h3 id="currentPlay"></h3>
+<input style="visibility: hidden" type="color">
 <h3 id="musicBox"><span>3:11</span><input type="range" value="100" min="0" max="100" step="1" /></h3>
 <main class="row-c">
     <div class="row">
@@ -18,6 +20,9 @@
         <div class="col-6">
             <h1>点歌机器人 -- moyu </h1>
             <div class="container">
+                <span class="btn-bullet-color">弹幕</span>
+                <span class="btn-word-color">歌词</span>
+                <div class="lyric"></div>
             </div>
             <div class="video-c">
             <video controls="controls">

@@ -17,36 +17,118 @@
     var time = d.querySelector('#musicBox span')
     var musicBox = d.querySelector('#musicBox')
     var range = d.querySelector('#musicBox input')
+    var lyricDom = d.querySelector('.lyric')
+    var color = d.querySelector('input[type=color]')
 
+    localStorage['bullet'] && insertStyle(localStorage['bullet'])
+    localStorage['word'] && insertStyle(localStorage['word'])
     /* common begin */
-    function appendBullet(val, isSelf) {
+    function appendBullet(val, low , delta, isSelf) {
         function randDuration() {
-            return 5 + (Math.random()*2);
+            return low + (Math.random()*delta);
         }
-        function randTop(el) {
+        function randTop(el, low) {
             var bound = el.clientHeight - 20
-            var low = 10
             return low + (Math.random()*(bound - low));
         }
         var span = d.createElement('span')
         span.className = 'bullet-text ' + (isSelf?'isSelf':'')
         span.innerText = val
-        span.style.animationDuration = randDuration()+'s'
         if(!video.paused && !video.ended) {
-            span.style.top = randTop(videoC)+'px'
+            span.style.top = randTop(videoC, 20)+'px'
+            span.style.animationDuration = videoC.clientWidth < 800 ? randDuration(5, 2)+'s' : randDuration(9, 3)+'s'
             videoC.appendChild(span)
             // var all = container.querySelectorAll('.bullet-text')
             // all && all.forEach(a=>{
             //     a.remove()
             // })
         } else {
-            span.style.top = randTop(container)+'px'
+            span.style.top = randTop(container, 90)+'px'
+            span.style.animationDuration = randDuration(5, 2)+'s'
             container.appendChild(span)
             // var all = videoC.querySelectorAll('.bullet-text')
             // all && all.forEach(a=>{
             //     a.remove()
             // })
         }
+    }
+    function binarySearch(ar, compare_fn) {
+        var m = 0;
+        var n = ar.length - 1;
+        while (m <= n) {
+            var k = (n + m) >> 1;
+            var cmp = compare_fn(ar[k]);
+            if (cmp > 0) {
+                m = k + 1;
+            } else if(cmp < 0) {
+                n = k - 1;
+            } else {
+                return k;
+            }
+        }
+        return -1;
+    }
+    function getCurrentWords(lrc, begin, sec, wordnum, curPos) {
+        if(curPos==null)
+            curPos = parseInt(wordnum/2)
+        var tmp = lrc.slice(begin)
+        if(tmp.length===0) return null
+        var i = tmp.findIndex(function (word) {
+            return word[0]>=sec
+        })
+        i = i>=0 ? i+begin : lrc.length-1
+        if(i>0) {
+            if(sec - lrc[i-1][0] >= lrc[i][0] - sec){
+
+            } else{
+                i--
+            }
+        }
+        var rlt = new Array(wordnum)
+        begin = i - curPos
+        for(var j=0; j<wordnum; j++) {
+            rlt[j] = j===curPos ? lrc[i]&&lrc[i][1] : lrc[begin]&&lrc[begin][1]
+            begin++
+        }
+        return {
+            rlt: rlt,
+            hlIndex: i,
+            hlPos: curPos
+        }
+    }
+    function renderHlLyric(hlLyric, hlIndex) {
+        function makeWord(text, isHl) {
+            var t = d.createElement('p')
+            t.className = 'word '+(isHl?'hl':'')
+            t.innerText = text || ' '
+            return t
+        }
+        lyricDom.innerHTML = ''
+        hlLyric.forEach(function (x, i) {
+            lyricDom.appendChild(makeWord(x, i==hlIndex))
+        })
+    }
+    function setLyric(lyric, id) {
+        function getFormattedLyric(lrc) {
+            lrc = lrc.split('\n').filter(function (x) {
+                return x.match(/\[.+?\].+/)
+            })
+            return lrc.map(function (word) {
+                var i = word.indexOf(']')
+                i = i>=0 ? i : 0
+                var time = word.substring(1, i).match(/(\d+):(\d+)\.(\d+)/)
+                time = time && time.length>=4 && (parseInt(time[1]*60) + parseInt(time[2]) + parseFloat((time[3]*.001).toFixed(3)))
+                return [time, word.substring(i+1)]
+            })
+        }
+        lyricDom.innerHTML = ''
+        lyricDom.props = lyricDom.props || {}
+        Object.assign(lyricDom.props, {
+            id: id,
+            lrc: getFormattedLyric(lyric.lrc),
+            hlLyric: null
+            // tlrc: getFormattedLyric(lyric.tlrc)
+        })
     }
     function setTip(v) {
         tip.innerText = v
@@ -112,7 +194,7 @@
         if(!song.id)
             return
         setCurrentPlay(song)
-        if(song.mv>0) {
+        if(song.mv > 0) {
             var all = videoC.querySelectorAll('.bullet-text')
             all = [].slice.call(all)
             all && all.forEach(a=>{
@@ -138,6 +220,7 @@
                 audio.currentTime = song.curTime
             audio.play()
             container.style.backgroundImage='url("'+song.pic.picUrl+'")'
+            song.lyric && song.lyric.code==200 && setLyric(song.lyric, song.id)
         }
         let hl = songs.querySelector('.hl')
         let active = songs.querySelector('#p'+song.id)
@@ -198,7 +281,14 @@
         }
     }
     function getCurrentSong() {
-        return currentPlay.props.song
+        return currentPlay.props.song || {}
+    }
+    function insertStyle(css) {
+        var h = d.head || d.querySelector('head')
+        var sty = d.createElement('style')
+        sty.setAttribute('type', 'text/css')
+        sty.innerText = css
+        h.appendChild(sty)
     }
     /* common end */
     /* events begin */
@@ -250,21 +340,46 @@
     })
 
     audio.addEventListener('ended', function (e) {
-        audio.ended = audio.paused = true
+        audio.pause()
         audio.src = ''
         musicBox.style.display = 'none'
         setCurrentPlay(null)
         container.style.backgroundImage = ''
         socket.emit('playEnd', audio.dataset.sid)
         removeSelector('.hl', songs)
+        lyricDom.innerHTML = ''
     })
     audio.addEventListener('timeupdate', function (e) {
         musicBox.style.display = 'block'
         var s = getTimeStr(audio.currentTime) + ' - ' + getTimeStr(audio.duration)
         time.innerText = s
+
+        if(lyricDom.props && lyricDom.props.id == getCurrentSong().id) {
+            var p = lyricDom.props
+            var bg = hlSec = 0
+            if(p.hlLyric && p.hlLyric.hlIndex!=null) {
+                bg = p.hlLyric.hlIndex
+                hlSec = p.lrc[bg] && p.lrc[bg][0] || 0
+            }
+            if(/* audio.currentTime > hlSec && */!lyricDom.props.rendering) {
+                // add lock
+                bg = audio.currentTime > hlSec ? bg : 0
+                lyricDom.props.rendering = true
+                var hlLyric = getCurrentWords(p.lrc, bg, audio.currentTime, 3)
+                // p.tlrc ? getCurrentWords(p.tlrc, bg, audio.currentTime, 3) : undefined
+                if(hlLyric){
+                    p.hlLyric = hlLyric
+                    renderHlLyric(hlLyric.rlt, hlLyric.hlPos)
+                }
+                lyricDom.props.rendering = false
+            }
+        }
+    })
+    video.addEventListener('timeupdate', function (e) {
+        // console.log('video timeupdate: ', video.currentTime)
     })
     video.addEventListener('ended', function (e) {
-        video.ended = video.paused = true
+        video.pause()
         video.src = ''
         videoC.style.display = 'none'
         setCurrentPlay(null)
@@ -301,9 +416,32 @@
     range.addEventListener('change', function (e) {
         audio.volume = range.value / 100
     })
+    container.addEventListener('click', function (e) {
+        var t = e.target
+        if(t.classList.contains('btn-bullet-color')) {
+            color.props = 'bullet'
+            color.click()
+        }
+        if(t.classList.contains('btn-word-color')) {
+            color.props = 'word'
+            color.click()
+        }
+    })
+    color.addEventListener('change', function (e) {
+        if(this.props == 'bullet') {
+            var s = "main .bullet-text {color: "+this.value+";}"
+            localStorage['bullet'] = s
+            insertStyle(s)
+        }
+        if(this.props == 'word') {
+            var s = ".container .lyric .word {color: "+this.value+";}"
+            localStorage['word'] = s
+            insertStyle(s)
+        }
+    })
     /* events end */
 
-
+    audio.volume = 1
     /* socket.io begin */
     socket
         .on('login', function () {
@@ -312,9 +450,8 @@
             socket.emit('login', (name==null?'':name).trim())
             videoC.style.display = 'none'
             musicBox.style.display = 'none'
-            audio.volume = 1
-            audio.ended = true
-            video.ended = true
+            audio.pause()
+            video.pause()
             setCurrentPlay(null)
             container.style.backgroundImage = ''
         }).on('bullet', function (data) {
@@ -341,14 +478,15 @@
             if(song) {
                 playSong(song)
             } else {
+                lyricDom.innerHTML = ''
                 setTip('现在还没人点歌哦')
             }
         }).on('currentTime', function (idObj) {
             if(getCurrentSong() && getCurrentSong().id == idObj.songID) {
                 var curTime = 0
-                if(!audio.ended)
+                if(!audio.paused)
                     curTime = audio.currentTime
-                else if(!video.ended)
+                else if(!video.paused)
                     curTime = video.currentTime
                 socket.emit('currentTime', {
                     id: idObj.socketID,

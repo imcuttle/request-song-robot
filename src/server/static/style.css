@@ -42,10 +42,51 @@ main .container {
     position: relative;
     overflow: hidden;
     background-color: #eeeeee;
-    height: 80%;
+    height: 73%;
     border-radius: 8px;
     box-shadow:4px 4px 5px #aaaaaa;
 }
+
+.container .lyric {
+    text-align: center;
+    position: absolute;
+    bottom: 5px;
+    left: 0;
+    right: 0;
+    height: 60px;
+}
+
+.container .lyric .word.hl {
+    /*color: #880000;*/
+    opacity: 1;
+}
+.container .btn-bullet-color,
+.container .btn-word-color {
+    position: absolute;
+    bottom: 3px;
+    font-size: 14px;
+    color: #660000;
+    border: 1px solid #660000;
+    cursor: pointer;
+    border-radius: 3px;
+    z-index: 50;
+    user-select: none;
+}
+.container .btn-bullet-color {
+    left: 3px;
+}
+.container .btn-word-color {
+    right: 3px;
+}
+.container .lyric .word {
+    height: 18px;
+    font-size: 16px;
+    padding-top: 2px;
+    display: block;
+    color: #880000;
+    opacity: .5;
+}
+
 .col-2 {
     width: 25%;
 }
@@ -180,7 +221,7 @@ main .bullet-text.isSelf {
     list-style: none;
     margin-top: 70px;
 
-    height: 74%;
+    height: 64%;
     overflow-y: scroll;
     background-color: #eeeeea;
     border: 1px solid #111111;

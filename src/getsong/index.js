@@ -54,11 +54,31 @@ function getSongUrl(id) {
             }
             return json
         })
-        .catch(console.error)
 }
 
 function getStream(url) {
     return util.spiderStream(url)
+}
+
+
+// getLyric(426502151).then(x=>console.log(x))
+function getLyric(songid) {
+    return util.spider({
+        url: `http://music.163.com/weapi/song/lyric?csrf_token=`,
+        method: 'POST',
+        form: crypto.aesRsaEncrypt( JSON.stringify({id: songid, os:'osx', lv: -1, kv: -1, tv: 1}))
+    }, 'json')
+    .then(x => {
+        if(x.code == 200 && !x.nolyric)
+            return {
+                code: 200,
+                lrc: x.lrc.lyric
+                // tlrc: x.tlyric.lyric
+            }
+        return {
+            code: 500
+        }
+    })
 }
 
 function getMvUrl(id) {
@@ -76,7 +96,6 @@ function getMvUrl(id) {
                 let i = x.indexOf('=')
                 json[x.substring(0, i)] = x.substring(i+1)
             })
-            json.url = '/api/mv?id='+id
         }
         return json
     })
@@ -116,5 +135,6 @@ module.exports = {
     getSongUrl: getSongUrl,
     getMvUrl,
     getStream,
-    getSongSuggest
+    getSongSuggest,
+    getLyric
 }

@@ -36,6 +36,7 @@ function handler (req, res) {
                 .then(json => {
                     if(json.hurl || json.murl) {
                         res.writeHead(200, {'Content-Type': u.suffix2Type('mp4')});
+                        console.log(json)
                         var s = gs.getStream(json.hurl || json.murl)
                         s.on('error', (err) => {
                             s.close && s.close()
@@ -43,6 +44,7 @@ function handler (req, res) {
                             res.end()
                         })
                         s.pipe(res)
+
                     } else {
                         res.writeHead(500);
                         res.end('Error '+JSON.stringify(json))
@@ -267,19 +269,27 @@ const requestSongWorker = (song, socket) => {
 
 
 function broadCastPlaySon(opt = {}) {
-    if(songs.getFirst())
-        gs.getSongUrl(songs.getFirst().id).then(x=>{
-            broadcast('play', Object.assign(opt, songs.getFirst(), x.data))
-        })
-    else
-        broadcast('play')
+    _playSon(null, opt)
 }
-
-function playSon(socket, opt = {}) {
-    if(songs.getFirst())
-        gs.getSongUrl(songs.getFirst().id).then(x=>{
-            socket.emit('play', Object.assign(opt, songs.getFirst(), x.data))
-        })
+function _playSon(socket, opt) {
+    let fn = socket ? socket.emit.bind(socket) : broadcast
+    let first = songs.getFirst()
+    if(first) {
+        if(first.mv>0) {
+            fn('play', Object.assign(opt, first))
+        } else {
+            gs.getSongUrl(first.id)
+                .then(x=>{
+                    gs.getLyric(first.id)
+                        .then(y => {
+                            fn('play', Object.assign(opt, first, x.data, {lyric: y}));
+                        })
+                })
+        }
+    }
     else
-        socket.emit('play')
+        fn('play')
+}
+function playSon(socket, opt = {}) {
+    _playSon(socket, opt)
 }
