@@ -74,16 +74,17 @@
         var tmp = lrc.slice(begin)
         if(tmp.length===0) return null
         var i = tmp.findIndex(function (word) {
-            return word[0]>=sec
+            return word[0] >= sec
         })
-        i = i>=0 ? i+begin : lrc.length-1
-        if(i>0) {
-            if(sec - lrc[i-1][0] >= lrc[i][0] - sec){
-
-            } else{
-                i--
-            }
-        }
+        i = i>=0 ? i+begin-1 : lrc.length-1
+        // if(i>0) {
+        //     if(sec - lrc[i-1][0] >= lrc[i][0] - sec){
+        //
+        //     } else{
+        //         i--
+        //     }
+        // }
+        // console.log(i)
         var rlt = new Array(wordnum)
         begin = i - curPos
         for(var j=0; j<wordnum; j++) {
@@ -127,8 +128,10 @@
             id: id,
             lrc: getFormattedLyric(lyric.lrc),
             hlLyric: null
-            // tlrc: getFormattedLyric(lyric.tlrc)
         })
+        console.log(lyricDom.props.lrc.map(x => {
+            return [getTimeStr(x[0]),x[1]]
+        }))
     }
     function setTip(v) {
         tip.innerText = v
@@ -358,7 +361,7 @@
             var p = lyricDom.props
             var bg = hlSec = 0
             if(p.hlLyric && p.hlLyric.hlIndex!=null) {
-                bg = p.hlLyric.hlIndex
+                bg = p.hlLyric.hlIndex>=0?p.hlLyric.hlIndex:0
                 hlSec = p.lrc[bg] && p.lrc[bg][0] || 0
             }
             if(/* audio.currentTime > hlSec && */!lyricDom.props.rendering) {
