@@ -23,8 +23,8 @@
     localStorage['bullet'] && insertStyle(localStorage['bullet'])
     localStorage['word'] && insertStyle(localStorage['word'])
     /* common begin */
-    function appendBullet(val, low , delta, isSelf) {
-        function randDuration() {
+    function appendBullet(val, isSelf) {
+        function randDuration(low, delta) {
             return low + (Math.random()*delta);
         }
         function randTop(el, low) {
@@ -36,7 +36,7 @@
         span.innerText = val
         if(!video.paused && !video.ended) {
             span.style.top = randTop(videoC, 20)+'px'
-            span.style.animationDuration = videoC.clientWidth < 800 ? randDuration(5, 2)+'s' : randDuration(9, 3)+'s'
+            span.style.animationDuration = (videoC.clientWidth < 800 ? randDuration(5, 2) : randDuration(videoC.clientWidth * .01, 2)) +'s'
             videoC.appendChild(span)
             // var all = container.querySelectorAll('.bullet-text')
             // all && all.forEach(a=>{
