@@ -2,6 +2,7 @@
     margin: 0;
     padding: 0;
     font-family: "Abadi MT Condensed Light";
+    user-select: none;
 }
 
 .row-c {
@@ -46,14 +47,33 @@ main .container {
     border-radius: 8px;
     box-shadow:4px 4px 5px #aaaaaa;
 }
+.container .lyric.moved {
+    z-index: 300;
+}
 
+.container .lyric.moving {
+    background-color: rgba(56, 56, 56, .5);
+}
+.container .lyric:hover {
+    background-color: rgba(56, 56, 56, .5);
+}
+#lyric-c,
 .container .lyric {
-    text-align: center;
+    padding-top: 5px;
+    padding-bottom: 5px;
     position: absolute;
-    bottom: 5px;
-    left: 0;
-    right: 0;
+    width: 100%;
     height: 60px;
+    bottom: 5px;
+}
+.container .lyric {
+    cursor: move;
+    text-align: center;
+    bottom: 0px;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
 .container .lyric .word.hl {
@@ -70,7 +90,6 @@ main .container {
     cursor: pointer;
     border-radius: 3px;
     z-index: 50;
-    user-select: none;
 }
 .container .btn-bullet-color {
     left: 3px;
@@ -79,12 +98,34 @@ main .container {
     right: 3px;
 }
 .container .lyric .word {
+    font-family: Consolas, Menlo, Monaco, monospace;
     height: 18px;
     font-size: 16px;
     padding-top: 2px;
     display: block;
     color: #880000;
     opacity: .5;
+}
+
+.video-c:not(.mini) .resize {
+    display: none;
+}
+
+.video-c .resize {
+    cursor: ew-resize;
+    position: absolute;
+    height: 100%;
+    background-color: transparent;
+}
+
+.video-c .resize-left {
+    width: 2px;
+    left: 0;
+}
+
+.video-c .resize-right {
+    width: 1px;
+    right: 0;
 }
 
 .col-2 {
@@ -133,7 +174,7 @@ main  {
 .ipt-container .suggest{
     /*display: none;*/
     visibility: hidden;
-    z-index: 300;
+    z-index: 299;
     list-style: none;
     position: absolute;
     height: 90px;
@@ -176,7 +217,10 @@ main input {
     padding-right: 10px;
     border-radius: 4px;
     border: 1px solid black;
-
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
     color: steelblue;
     text-shadow: 0px 0px 0px #000;
     -webkit-text-fill-color: transparent;
@@ -299,6 +343,9 @@ main video {
     top: 50%;
     transform: translateY(-50%);
 }
+main .video-c.moving {
+    border: 2px dashed #dae17b;
+}
 .video-c .btn-close {
     position: absolute;
     top: 10px;
@@ -336,6 +383,8 @@ main video {
 }
 .video-c.mini {
     /*transition: all 1s;*/
+    cursor: move;
+    margin: 0;
     width: 30%;
     top: 2px;
     right: 4px;
@@ -356,7 +405,7 @@ main video {
     display: none;
     z-index: 300;
     top: 10px;
-    right: 10px;
+    right: 20px;
 }
 #musicBox span {
     margin-right: 10px;

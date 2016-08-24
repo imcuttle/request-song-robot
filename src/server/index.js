@@ -36,7 +36,6 @@ function handler (req, res) {
                 .then(json => {
                     if(json.hurl || json.murl) {
                         res.writeHead(200, {'Content-Type': u.suffix2Type('mp4')});
-                        console.log(json)
                         var s = gs.getStream(json.hurl || json.murl)
                         s.on('error', (err) => {
                             s.close && s.close()
@@ -121,7 +120,7 @@ io.on('connection', function (socket) {
             }))
             fixTime(socket)
             socket.name = ( (name!=null&&name!='') ? name : makeName() )
-
+            broadcast('message', {welcome: true, text: socket.name})
             socket.on('bullet', (data) => {
                 if(socket.lastSend && (Date.now()-socket.lastSend)<5000) {
 
@@ -164,6 +163,7 @@ io.on('connection', function (socket) {
                 requestSongWorker(song, socket)
             })
         }).on('disconnect', ()=> {
+            broadcast('message', {bye: true, text: socket.name})
             // songs.removeUserSongs(socket._id)
         }).on('play', () => {
             if(Object.keys(socket.server.sockets.sockets).length>1) {

@@ -19,10 +19,19 @@
     var range = d.querySelector('#musicBox input')
     var lyricDom = d.querySelector('.lyric')
     var color = d.querySelector('input[type=color]')
-
+    var lyricC = d.querySelector('#lyric-c')
+    var title = d.head.querySelector('title')
+    setProps(title, title.innerText)
     localStorage['bullet'] && insertStyle(localStorage['bullet'])
     localStorage['word'] && insertStyle(localStorage['word'])
+    
+
     /* common begin */
+    function bindEventListener(ele, type, fn, bub) {
+        bub = bub || false
+        ele[type] = fn.bind(ele)
+        ele.addEventListener(type, fn, bub)
+    }
     function appendBullet(val, isSelf) {
         function randDuration(low, delta) {
             return low + (Math.random()*delta);
@@ -123,15 +132,12 @@
             })
         }
         lyricDom.innerHTML = ''
-        lyricDom.props = lyricDom.props || {}
-        Object.assign(lyricDom.props, {
+        setProps(lyricDom, {
             id: id,
             lrc: getFormattedLyric(lyric.lrc),
             hlLyric: null
         })
-        console.log(lyricDom.props.lrc.map(x => {
-            return [getTimeStr(x[0]),x[1]]
-        }))
+
     }
     function setTip(v) {
         tip.innerText = v
@@ -140,11 +146,20 @@
             tip.innerText = ''
         }, 2000)
     }
+    function setTitle(text) {
+        title.innerText = text
+    }
     function setCurrentPlay(song) {
-        var s = song ? '正在播放: ' + song.name + ' - ' + song.author : ''
+        var s
+        if(song) {
+            s = '正在播放: ' + song.name + ' - ' + song.author
+            setTitle( '✌ '+ song.name + ' - ' + song.author + ' ✌')
+        } else {
+            s = ''
+            setTitle(getProps(title))
+        }
         currentPlay.innerText = s
-        currentPlay.props = currentPlay.props || {}
-        Object.assign(currentPlay.props, {
+        setProps(currentPlay, {
             song: song
         })
     }
@@ -156,7 +171,7 @@
             return span
         }
         var li = d.createElement('li')
-        li.appendChild(mkP(msg.name+': '+msg.text))
+        li.appendChild(mkP(msg.welcome ? ('欢迎: '+msg.text) : msg.bye ? ('Bye: '+msg.text) : (msg.name+': '+msg.text)))
         msgs.appendChild(li)
         msgs.scrollTop = msgs.scrollHeight
     }
@@ -183,7 +198,34 @@
         var ele = parent.querySelector(el)
         ele && ele.remove()
     }
+    function setProps(el, props) {
+        if(typeof props === 'object' || typeof props === 'undefined')
+            el.props = Object.assign(el.props||{}, props)
+        else
+            el.props = props
+    }
+    function getProps(el, key) {
+        return key==null ? el.props : (el.props && el.props[key])
+    }
     function toggleMiniVideo() {
+        if(videoC.classList.contains('mini')) {
+            setProps(videoC, {
+                miniStyle: {
+                    right: videoC.style.right,
+                    top: videoC.style.top,
+                    width: videoC.style.width
+                }
+            })
+            videoC.style.right = videoC.style.top = videoC.style.width = ''
+        } else {
+            var style = getProps(videoC, 'miniStyle')
+            if(style) {
+                for(var k in style) {
+                    videoC.style[k] = style[k]
+                }
+            }
+        }
+
         videoC.classList.toggle('mini')
         var mini = videoC.querySelector('.mini')
         mini.classList.toggle('vertical')
@@ -222,6 +264,7 @@
             if(song.curTime)
                 audio.currentTime = song.curTime
             audio.play()
+            lyricDom.style.display = ''
             container.style.backgroundImage='url("'+song.pic.picUrl+'")'
             song.lyric && song.lyric.code==200 && setLyric(song.lyric, song.id)
         }
@@ -253,7 +296,7 @@
         function createLi(song, active) {
             var li = d.createElement('li')
             li.innerText = song.name+' - '+song.author
-            li.props = song
+            setProps(li, song)
             li.className = active?'active':''
             return li
         }
@@ -284,7 +327,7 @@
         }
     }
     function getCurrentSong() {
-        return currentPlay.props.song || {}
+        return getProps(currentPlay, 'song') || {}
     }
     function insertStyle(css) {
         var h = d.head || d.querySelector('head')
@@ -295,12 +338,72 @@
     }
     /* common end */
     /* events begin */
-    ipt.addEventListener('keydown', function (e) {
+    bindEventListener(d.body, 'mousedown', function (e) {
+        var targ = e.target
+        if(videoC.classList.contains('mini')) {
+            if(targ === video) {
+                videoC.mouseDownMove = true
+                videoC.offset = {
+                    x: e.offsetX,
+                    y: e.offsetY
+                }
+                videoC.classList.add('moving')
+                return
+            } else if(targ.classList.contains('resize-left')) {
+                videoC.mouseDownResize = true
+                return
+            }
+        }
+        if(targ.classList.contains('word')) {
+            lyricDom.mouseDownMove = true
+            lyricDom.offset = {
+                x: e.offsetX,
+                y: e.offsetY
+            }
+            lyricDom.classList.add('moving')
+        }
+    }, false)
+    bindEventListener(d.body, 'mouseup', function (e) {
+        videoC.mouseDownMove = false
+        videoC.mouseDownResize = 0
+        lyricDom.mouseDownMove = false
+        videoC.classList.remove('moving')
+        lyricDom.classList.remove('moving')
+    })
+    bindEventListener(d.body, 'mousemove', function (e) {
+        var x = e.clientX, y = e.clientY
+        function moveHandler(ele) {
+            ele.style.width = w.getComputedStyle(ele).width
+            if(w.getComputedStyle(ele).position!='fixed')
+                ele.style.position = 'fixed'
+            var offsetx = ele.offset.x, offsety = ele.offset.y
+            ele.style.right = (w.innerWidth- ele.clientWidth - (x-offsetx))+'px'
+            ele.style.top = (y-offsety)+'px'
+        }
+        if(videoC.mouseDownMove) {
+            moveHandler(videoC)
+        } else if(lyricDom.mouseDownMove){
+            moveHandler(lyricDom)
+            lyricDom.classList.add('moved')
+        }else if(videoC.mouseDownResize) {
+            var MIN_WIDTH = 140
+            var MAX_WIDTH = w.innerWidth - 10
+            var currentWidth = videoC.clientWidth
+            var left = videoC.getBoundingClientRect().left
+            var delta = left - x
+
+            var computedWidth = currentWidth+delta
+            videoC.style.width = (computedWidth>MIN_WIDTH ? computedWidth<MAX_WIDTH? computedWidth: MAX_WIDTH : MIN_WIDTH) + 'px'
+            video.resize()
+        }
+    })
+    
+    bindEventListener(ipt, 'keydown', function (e) {
         var val = this.value.trim()
         if(e.keyCode === 13) {
             var active = suggest.querySelector('li.active')
             if(active && suggestIsShow())
-                socket.emit('reqsong', active.props)
+                socket.emit('reqsong', getProps(active))
             else {
                 socket.emit('bullet', {val: val})
             }
@@ -328,21 +431,21 @@
             }
         }
     })
-    ipt.addEventListener('blur', function () {
+    bindEventListener(ipt, 'blur', function () {
         setTimeout(function () {
             suggest.style.visibility = 'hidden'
         }, 100)
     })
-    ipt.addEventListener('focus', function () {
+    bindEventListener(ipt, 'focus', function () {
         var val = this.value.trim()
         showSuggest(val)
     })
-    ipt.addEventListener('input', function (e) {
+    bindEventListener(ipt, 'input', function (e) {
         var val = this.value.trim()
         showSuggest(val)
     })
 
-    audio.addEventListener('ended', function (e) {
+    bindEventListener(audio, 'ended', function (e) {
         audio.pause()
         audio.src = ''
         musicBox.style.display = 'none'
@@ -350,38 +453,40 @@
         container.style.backgroundImage = ''
         socket.emit('playEnd', audio.dataset.sid)
         removeSelector('.hl', songs)
+        lyricDom.style.display = 'none'
         lyricDom.innerHTML = ''
     })
-    audio.addEventListener('timeupdate', function (e) {
+    
+    
+    bindEventListener(audio, 'timeupdate', function (e) {
         musicBox.style.display = 'block'
         var s = getTimeStr(audio.currentTime) + ' - ' + getTimeStr(audio.duration)
         time.innerText = s
-
-        if(lyricDom.props && lyricDom.props.id == getCurrentSong().id) {
-            var p = lyricDom.props
+        var p = getProps(lyricDom)
+        if(p && p.id == getCurrentSong().id) {
             var bg = hlSec = 0
             if(p.hlLyric && p.hlLyric.hlIndex!=null) {
                 bg = p.hlLyric.hlIndex>=0?p.hlLyric.hlIndex:0
                 hlSec = p.lrc[bg] && p.lrc[bg][0] || 0
             }
-            if(/* audio.currentTime > hlSec && */!lyricDom.props.rendering) {
+            if(/* audio.currentTime > hlSec && */!p.rendering) {
                 // add lock
                 bg = audio.currentTime > hlSec ? bg : 0
-                lyricDom.props.rendering = true
+                setProps(lyricDom, {rendering: true})
                 var hlLyric = getCurrentWords(p.lrc, bg, audio.currentTime, 3)
                 // p.tlrc ? getCurrentWords(p.tlrc, bg, audio.currentTime, 3) : undefined
                 if(hlLyric){
                     p.hlLyric = hlLyric
                     renderHlLyric(hlLyric.rlt, hlLyric.hlPos)
                 }
-                lyricDom.props.rendering = false
+                setProps(lyricDom, {rendering: false})
             }
         }
     })
-    video.addEventListener('timeupdate', function (e) {
+    bindEventListener(video, 'timeupdate', function (e) {
         // console.log('video timeupdate: ', video.currentTime)
     })
-    video.addEventListener('ended', function (e) {
+    bindEventListener(video, 'ended', function (e) {
         video.pause()
         video.src = ''
         videoC.style.display = 'none'
@@ -390,53 +495,53 @@
         socket.emit('playEnd', video.dataset.sid)
         removeSelector('.hl', songs)
     })
-    videoC.addEventListener('click', function(e) {
+    bindEventListener(videoC, 'click', function(e) {
         var target = e.target
         if(target.classList.contains('btn-close') || target.parentElement.classList.contains('btn-close')) {
             toggleMiniVideo()
             fixVideoCloseBtn()
         }
     })
-    w.addEventListener('resize', function (e) {
+    bindEventListener(w, 'resize', function (e) {
         fixVideoCloseBtn()
     })
-    video.addEventListener('resize', function (e) {
+    bindEventListener(video, 'resize', function (e) {
         fixVideoCloseBtn()
     })
-    songs.addEventListener('click', function (e) {
+    bindEventListener(songs, 'click', function (e) {
         var t = e.target
         if(t.classList.contains('btn-close')) {
             var sid = t.parentElement.id.substring(1)
             socket.emit('deleteSong', sid)
         }
     })
-    suggest.addEventListener('click', function (e) {
+    bindEventListener(suggest, 'click', function (e) {
         var t = e.target
         if(t.tagName == 'LI') {
-            socket.emit('reqsong', t.props)
+            socket.emit('reqsong', getProps(t))
         }
     })
-    range.addEventListener('change', function (e) {
+    bindEventListener(range, 'change', function (e) {
         audio.volume = range.value / 100
     })
-    container.addEventListener('click', function (e) {
+    bindEventListener(container, 'click', function (e) {
         var t = e.target
         if(t.classList.contains('btn-bullet-color')) {
-            color.props = 'bullet'
+            setProps(color, 'bullet')
             color.click()
         }
         if(t.classList.contains('btn-word-color')) {
-            color.props = 'word'
+            setProps(color, 'word')
             color.click()
         }
     })
-    color.addEventListener('change', function (e) {
-        if(this.props == 'bullet') {
+    bindEventListener(color, 'change', function (e) {
+        if(getProps(this) == 'bullet') {
             var s = "main .bullet-text {color: "+this.value+";}"
             localStorage['bullet'] = s
             insertStyle(s)
         }
-        if(this.props == 'word') {
+        if(getProps(this) == 'word') {
             var s = ".container .lyric .word {color: "+this.value+";}"
             localStorage['word'] = s
             insertStyle(s)
@@ -481,6 +586,7 @@
             if(song) {
                 playSong(song)
             } else {
+                lyricDom.style.display = 'none'
                 lyricDom.innerHTML = ''
                 setTip('现在还没人点歌哦')
             }

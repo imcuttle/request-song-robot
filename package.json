@@ -1,6 +1,6 @@
 {
   "name": "song-robot",
-  "version": "1.0.29",
+  "version": "1.0.32",
   "description": "点歌机器人, 来自网易云音乐",
   "main": "index.js",
   "dependencies": {

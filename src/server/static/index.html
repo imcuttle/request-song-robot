@@ -10,6 +10,7 @@
 <h3 id="currentPlay"></h3>
 <input style="visibility: hidden" type="color">
 <h3 id="musicBox"><span>3:11</span><input type="range" value="100" min="0" max="100" step="1" /></h3>
+
 <main class="row-c">
     <div class="row">
         <div class="col-2">
@@ -20,14 +21,17 @@
         <div class="col-6">
             <h1>点歌机器人 -- moyu </h1>
             <div class="container">
+                <div class="video-c">
+                    <video controls="controls">
+                    </video>
+                    <span class="btn-close"><span class="mini"></span><span class="mini second"></span></span>
+                    <span class="resize resize-left"></span>
+                </div>
                 <span class="btn-bullet-color">弹幕</span>
                 <span class="btn-word-color">歌词</span>
+                <!--<div id="lyric-c">-->
                 <div class="lyric"></div>
-            </div>
-            <div class="video-c">
-            <video controls="controls">
-            </video>
-            <span class="btn-close"><span class="mini"></span><span class="mini second"></span></span>
+                <!--</div>-->
             </div>
             <div class="ipt-container">
                 <div class="tips"></div>
