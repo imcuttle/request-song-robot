@@ -136,26 +136,28 @@ function getSongSuggest(s) {
 
 function forwardRequest (req, res, url) {
     var urlAsg = URL.parse(url, true);
+    var headers = req.headers;
     var urlOptions = {
         host: urlAsg.host,
         port: urlAsg.port || 80,
         path: urlAsg.path,
         method: req.method,
-        headers: {
-            range: req.headers.range
-        }
+        headers: { range: headers.range }
         // rejectUnauthorized: false
     };
-    console.log('headers', req.headers);
+
     var forward_request = require('http').request(urlOptions, function(response) {
         var code = response.statusCode;
         if(code === 302) {
             var location = response.headers.location;
+            console.log('location', location);
+            response.destroy();
+            forward_request.abort();
             forwardRequest(req, res, location);
             return;
         }
         res.writeHead(code, response.headers);
-        response.pipe(res)
+        response.pipe(res, {end: false})
     });
 
     forward_request.on('error', function(e) {

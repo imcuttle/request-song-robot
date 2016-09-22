@@ -38,7 +38,7 @@ function handler (req, res) {
                 .then(json => {
                     if(json.hurl || json.murl ) {
                         
-                        gs.forwardRequest(req, res, json.hurl || json.murl );
+                        gs.forwardRequest(req, res, json.murl || json.hurl);
                         
                     } else {
                         res.writeHead(500);
