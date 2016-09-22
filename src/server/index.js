@@ -3,7 +3,8 @@
  * Created by Moyu on 16/8/19.
  */
 
-var app = require('http').createServer(handler)
+var http = require('http')
+var app = http.createServer(handler)
 var io = require('socket.io')(app);
 var fs = require('fs');
 var URL = require('url');
@@ -29,21 +30,16 @@ app.listen(argv.p || 9888, () => {
 
 function handler (req, res) {
     let url = req.url
+    console.log(url)
     let q = URL.parse(req.url, true).query
     if(url.startsWith(SUFFIX)) {
         if(q.id!=0)
             gs.getMvUrl(q.id)
                 .then(json => {
-                    if(json.hurl || json.murl) {
-                        res.writeHead(200, {'Content-Type': u.suffix2Type('mp4')});
-                        var s = gs.getStream(json.hurl || json.murl)
-                        s.on('error', (err) => {
-                            s.close && s.close()
-                            console.error(err)
-                            res.end()
-                        })
-                        s.pipe(res)
-
+                    if(json.hurl || json.murl ) {
+                        
+                        gs.forwardRequest(req, res, json.hurl || json.murl );
+                        
                     } else {
                         res.writeHead(500);
                         res.end('Error '+JSON.stringify(json))
@@ -70,12 +66,21 @@ function handler (req, res) {
                     }
                     return gs.getStream(x.data.url)
                         .then(s => {
+                            
+                            
+                            
+                            
+                            
+                            
+                            
                             s.on('error', (err) => {
                                 s.close && s.close()
                                 console.error(err)
                                 res.end()
                             })
                             res.writeHead(200, {'Content-Type': 'audio/mpeg'})
+                            
+                            
                             s.pipe(res)
                         })
                 })
@@ -85,7 +90,16 @@ function handler (req, res) {
         }
         return
     }
-
+    // if(url=="/stream") {
+    //     res.writeHead(200, {
+    //         'Content-Type': 'text/event-stream',
+    //         'Cache-Control': 'no-cache'
+    //     })
+    //     setInterval(function () {
+    //         res.write("data: " + Date.now()+"\n\n")
+    //     }, 1000)
+    //     return;
+    // }
     let queryIndex = url.lastIndexOf('?')
     if(queryIndex >= 0) {
         url = url.slice(queryIndex)
@@ -96,7 +110,6 @@ function handler (req, res) {
     if(dotIndex >= 0) {
         ext = filename.substring(dotIndex+1)
     }
-    console.log(url, filename, ext)
     fs.readFile(p.resolve(__dirname, 'static', filename),
         function (err, data) {
             if (err) {

@@ -2,6 +2,14 @@
  * Created by Moyu on 16/8/19.
  */
 
+// var source = new EventSource("/stream");
+// source.onerror = function (error) {
+//     console.error("error", error)
+// }
+// source.onmessage = function (event) {
+//     console.log(event.data);
+// }
+
 !function (w, d) {
     var socket = io();
     var ipt = d.querySelector('.ipt-container input')
@@ -150,10 +158,11 @@
         title.innerText = text
     }
     function setCurrentPlay(song) {
-        var s
+        var s, info
         if(song) {
-            s = '正在播放: ' + song.name + ' - ' + song.author
-            setTitle( '✌ '+ song.name + ' - ' + song.author + ' ✌')
+            info = '\uD83D\uDC49 '+ song.name + ' - ' + song.author + ' \uD83D\uDC48'
+            s = '正在播放: ' + info
+            setTitle(info)
         } else {
             s = ''
             setTitle(getProps(title))
@@ -256,6 +265,7 @@
             if(song.curTime)
                 video.currentTime = song.curTime
             video.play()
+            lyricDom.style.display = 'none'
         } else {
             videoC.style.display = 'none'
             musicBox.style.display = 'block'

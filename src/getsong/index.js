@@ -1,6 +1,8 @@
 /**
  * Created by Moyu on 16/8/19.
  */
+const URL = require('url')
+
 const util = require('../utils')
 
 const GET_SONG_URL = "http://music.163.com/weapi/cloudsearch/get/web?csrf_token="
@@ -56,8 +58,9 @@ function getSongUrl(id) {
         })
 }
 
-function getStream(url) {
-    return util.spiderStream(url)
+function getStream(ops) {
+
+    return util.spiderStream(ops)
 }
 
 
@@ -130,11 +133,44 @@ function getSongSuggest(s) {
         return json;
     })
 }
+
+function forwardRequest (req, res, url) {
+    var urlAsg = URL.parse(url, true);
+    var urlOptions = {
+        host: urlAsg.host,
+        port: urlAsg.port || 80,
+        path: urlAsg.path,
+        method: req.method,
+        headers: {
+            range: req.headers.range
+        }
+        // rejectUnauthorized: false
+    };
+    console.log('headers', req.headers);
+    var forward_request = require('http').request(urlOptions, function(response) {
+        var code = response.statusCode;
+        if(code === 302) {
+            var location = response.headers.location;
+            forwardRequest(req, res, location);
+            return;
+        }
+        res.writeHead(code, response.headers);
+        response.pipe(res)
+    });
+
+    forward_request.on('error', function(e) {
+        console.error('problem with request: ' + e.message);
+    });
+
+    req.pipe(forward_request)
+}
+
 module.exports = {
     getSongs,
     getSongUrl: getSongUrl,
     getMvUrl,
     getStream,
     getSongSuggest,
-    getLyric
+    getLyric,
+    forwardRequest
 }
