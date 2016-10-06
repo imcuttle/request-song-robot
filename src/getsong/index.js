@@ -11,31 +11,31 @@ const crypto = util.Crypto
 // getSongs('Sugar Maroon').then(console.log)
 function getSongs(text) {
     return util
-            .spider({
-                url: GET_SONG_URL,
-                method: 'POST',
-                headers: {
-                    'Referer': 'http://music.163.com/search/'
-                },
-                form: crypto.aesRsaEncrypt( JSON.stringify({s: text, type: '1'}))
-            }, 'json')
-            .then(json => {
-                if(json.code==200) {
-                    json.result = json.result.songs.map((song) => {
-                        return {
-                            name: song.name,
-                            id: song.id,
-                            pic: song.al,
-                            author: song.ar.map(art=>{
-                                return art.name
-                            }).join(','),
-                            mv: song.mv>0 ? song.mv : null
-                        }
-                    })
-                }
-                return json
-            })
-            .catch(console.error)
+        .spider({
+            url: GET_SONG_URL,
+            method: 'POST',
+            headers: {
+                'Referer': 'http://music.163.com/search/'
+            },
+            form: crypto.aesRsaEncrypt( JSON.stringify({s: text, type: '1'}))
+        }, 'json')
+        .then(json => {
+            if(json.code==200) {
+                json.result = json.result.songs.map((song) => {
+                    return {
+                        name: song.name,
+                        id: song.id,
+                        pic: song.al,
+                        author: song.ar.map(art=>{
+                            return art.name
+                        }).join(','),
+                        mv: song.mv>0 ? song.mv : null
+                    }
+                })
+            }
+            return json
+        })
+        .catch(console.error)
 }
 
 function getSongUrl(id) {

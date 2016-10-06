@@ -165,10 +165,10 @@ io.on('connection', function (socket) {
                     socket.emit('deleteSong', { isSelf: success, id: id })
                 }
             }).on('reqsong', function (song) {
-                const v = '点歌 ' + song.name+' - '+song.author
-                socket.emit('bullet', {isSelf: true, val: v})
-                socket.broadcast.emit('bullet', {val: v})
-                requestSongWorker(song, socket)
+                const v = '点歌 ' + song.name+' - '+song.author;
+                socket.emit('bullet', {isSelf: true, val: v});
+                socket.broadcast.emit('bullet', {val: v});
+                requestSongWorker(song, socket);
             })
         }).on('disconnect', ()=> {
             broadcast('message', {bye: true, text: socket.name})
@@ -240,7 +240,7 @@ const makeName = (() => {
     }
 })()
 
-const requestSongWorker = (song, socket) => {
+const requestSongWorker = (song, socket, callback) => {
     let id = song.id
     if(songs.exists(id)) {
         socket.emit('putSong', {code: 500, message: song.name + '已经在点歌列表中'})
@@ -262,6 +262,8 @@ const requestSongWorker = (song, socket) => {
             gs.getSongUrl(id).then((x) => {
                 if(x.code!=200) {
                     socket.emit('putSong', {code: 500, message: x.msg})
+                } else if(x.data.url == null) {
+                    socket.emit('putSong', {code: 500, message: '该歌曲无数据'});
                 } else {
                     songs.add(Object.assign({}, song, x.data))
                     socket.broadcast.emit('putSong', {code: 200, song: song})
