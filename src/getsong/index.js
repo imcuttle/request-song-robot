@@ -148,7 +148,7 @@ function forwardRequest (req, res, url) {
 
     var forward_request = require('http').request(urlOptions, function(response) {
         var code = response.statusCode;
-        if(code === 302) {
+        if(code === 302 || code === 301) {
             var location = response.headers.location;
             console.log('location', location);
             response.destroy();

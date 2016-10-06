@@ -32,29 +32,33 @@ function handler (req, res) {
     let url = req.url
     console.log(url)
     let q = URL.parse(req.url, true).query
+
     if(url.startsWith(SUFFIX)) {
-        if(q.id!=0)
+
+        if(q.id!=0) {
             gs.getMvUrl(q.id)
-                .then(json => {
-                    if(json.hurl || json.murl ) {
-                        
-                        gs.forwardRequest(req, res, json.murl || json.hurl);
-                        
-                    } else {
-                        res.writeHead(500);
-                        res.end('Error '+JSON.stringify(json))
-                    }
-                })
-        else {
+            .then(json => {
+                if(json.hurl || json.murl ) {
+
+                    gs.forwardRequest(req, res, json.hurl || json.murl);
+
+                } else {
+                    res.writeHead(500);
+                    res.end('Error '+JSON.stringify(json))
+                }
+            })
+        } else {
             res.writeHead(500);
             res.end('Error')
         }
+
         return
+
     } else if(url.startsWith(SUG_SUFFIX)) {
         gs.getSongs(q.s)
-            .then(json=>{
-                res.end(JSON.stringify(json))
-            })
+        .then(json=>{
+            res.end(JSON.stringify(json))
+        })
         return
     } else if(url.startsWith('/api/song')) {
         if(q.id!= null && q.id>0) {
@@ -66,21 +70,12 @@ function handler (req, res) {
                     }
                     return gs.getStream(x.data.url)
                         .then(s => {
-                            
-                            
-                            
-                            
-                            
-                            
-                            
                             s.on('error', (err) => {
                                 s.close && s.close()
                                 console.error(err)
                                 res.end()
                             })
                             res.writeHead(200, {'Content-Type': 'audio/mpeg'})
-                            
-                            
                             s.pipe(res)
                         })
                 })
@@ -185,8 +180,9 @@ io.on('connection', function (socket) {
                 }, 5000)
                 socket.broadcast.emit('currentTime', socket.id)
             }
-            else
+            else {
                 playSon(socket)
+            }
         }).on('currentTime', (json) => {
             let findId = Object.keys(socket.server.sockets.sockets).find((x) => {
                 return x == json.id
