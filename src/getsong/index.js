@@ -157,7 +157,7 @@ function forwardRequest (req, res, url) {
             return;
         }
         res.writeHead(code, response.headers);
-        response.pipe(res, {end: false})
+        response.pipe(res)
     });
 
     forward_request.on('error', function(e) {
