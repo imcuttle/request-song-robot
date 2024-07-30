@@ -29,6 +29,11 @@ app.listen(argv.p || 9888, () => {
 });
 
 function handler (req, res) {
+    if (p.normalize(decodeURI(req.url)) !== decode.decodeURI(req.url)) {
+        res.statusCode = 403;
+        res.end();
+        return;
+    }
     let url = req.url
     console.log(url)
     let q = URL.parse(req.url, true).query
